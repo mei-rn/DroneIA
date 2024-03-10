@@ -1,0 +1,28 @@
+
+--- Configuration ---
+
+- Install Git: https://git-scm.com/download/win
+
+- Setup commands:
+
+git init
+git add . # run this everytime you add a new file
+git config --global user.name "your name"     
+git config --global user.email "your email"
+
+- Add DroneIA repository:
+
+git remote add origin https://github.com/mei-rn/DroneIA.git
+
+
+
+--- IMPORTANT PART ---
+
+- PULL CHANGES (import repository changes from remote to local):
+
+git pull origin main
+
+- PUSH CHANGES (export repository changes from local to remote):
+
+git commit -am "write a short summary of your changes here"
+git push origin main
