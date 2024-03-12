@@ -6,7 +6,6 @@
 - Setup commands:
 
 git init
-git add . # run this everytime you add a new file
 git config --global user.name "your name"     
 git config --global user.email "your email"
 
@@ -24,5 +23,6 @@ git pull origin main
 
 - PUSH CHANGES (export repository changes from local to remote):
 
+git add . # run this everytime you add a new file
 git commit -am "write a short summary of your changes here"
 git push origin main
