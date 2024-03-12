@@ -26,3 +26,6 @@ git pull origin main
 git add . # run this everytime you add a new file
 git commit -am "write a short summary of your changes here"
 git push origin main
+
+
+l:kj,hgnb
