@@ -47,7 +47,7 @@ def main():
                     if clicked_button:  # if a button is clicked
                         selected_map = clicked_button[1]
                         MAP = load_map(selected_map)  # load selected map
-                        simulation()  # switch to game screen
+                        drawMap()  # switch to game screen
         pygame.display.update()
 
 # draw map selection screen
@@ -92,14 +92,24 @@ def drawGrid():
             if MAP[y // CELL_SIZE][x // CELL_SIZE] == 1:  # if it's an obstacle cell (1)
                 pygame.draw.rect(WINDOW, WHITE, rect)  # draw obstacle
 
-# launch simulation with selected map
-def simulation():
+# draw on selected map
+def drawMap():
     while True:
         drawGrid()
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT: # handle window closing (ends program)  
+                # save_map('map_ananas.pkl') # uncomment this line to save map in a file (et changez le nom svp allez pas override les maps des autres gens >:( )
                 pygame.quit()
                 sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:  # handle mouse clicking
+                if pygame.mouse.get_pressed()[0]:  # left mouse button
+                    pos = pygame.mouse.get_pos() # get click position
+                    cell_x, cell_y = pos[0] // CELL_SIZE, pos[1] // CELL_SIZE
+                    if MAP[cell_y][cell_x] == 0:  # if the cell is not an obstacle
+                        MAP[cell_y][cell_x] = 1  # mark it as an obstacle
+                    else:
+                        MAP[cell_y][cell_x] = 0  # remove the obstacle
+
         pygame.display.update()
 
 
