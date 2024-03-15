@@ -62,13 +62,14 @@ def drawMapSelectionScreen():
 def drawMapButtons():
     map_buttons = []
     map_files = [f for f in os.listdir() if f.startswith("map_") and f.endswith(".pkl")]
+    button_names = [f[len("map_"):].rstrip('.pkl') for f in map_files]
     button_height = 50
-    for i, map_file in enumerate(map_files):
+    for i, (map_file, button_name) in enumerate(zip(map_files, button_names)):
         button_rect = pygame.Rect(20, 100 + i * (button_height + 10), 300, button_height)
         pygame.draw.rect(WINDOW, WHITE, button_rect)  # draw button
         pygame.draw.rect(WINDOW, GRAY, button_rect, 3)  # draw border
         font = pygame.font.SysFont(None, 30)
-        text = font.render(map_file, True, GRAY)
+        text = font.render(button_name, True, GRAY)
         text_rect = text.get_rect(center=button_rect.center)
         WINDOW.blit(text, text_rect)
         map_buttons.append((button_rect, map_file))
