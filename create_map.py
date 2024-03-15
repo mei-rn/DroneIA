@@ -20,7 +20,7 @@ def load_map(filename):
     with open(filename, 'rb') as f:
         return pickle.load(f)
 
-MAP = load_map('map_ananas.pkl') # uncomment this line to load a map
+# MAP = load_map('map_ananas.pkl') # uncomment this line to load a map
     
 # main function
 def main():
@@ -32,7 +32,7 @@ def main():
         drawGrid()
         for event in pygame.event.get():
             if event.type == pygame.QUIT: # handle window closing (ends program)  
-                save_map('map_ananas.pkl') # uncomment this line to save map in a file (et changez le nom svp allez pas override les maps des autres gens >:( )
+                # save_map('map_ananas.pkl') # uncomment this line to save map in a file (et changez le nom svp allez pas override les maps des autres gens >:( )
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:  # handle mouse clicking
