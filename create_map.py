@@ -3,6 +3,7 @@ import pygame
 import sys
 import pickle
 
+
 # colors
 GRAY = (150, 150, 150)
 WHITE = (200, 200, 200)
