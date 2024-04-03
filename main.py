@@ -73,7 +73,7 @@ class DroneGridEnv(gym.Env):
         else:
             done = False  # Episode continues
             reward = -0.1  # Negative reward for colliding with obstacle or going out of bounds
-        
+        print(reward)
         return self.current_pos, reward, done, {}  # Return next state, reward, episode termination flag, and additional info
 
 def main():
