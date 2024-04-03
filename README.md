@@ -1,2 +1,1 @@
 # DroneIA
-Écraser l'ESME
