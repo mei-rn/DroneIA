@@ -6,7 +6,7 @@ import os
 import pygame
 import sys
 from create_map import drawMap, drawGrid, drawMapButtons, drawMapSelectionScreen, load_map, save_map, getClickedButton
-from agent import QAgent, load_table, save_table, save_checkpoint, load_checkpoint
+from agent import QAgent, load_checkpoint
 # colors
 GRAY = (150, 150, 150)
 WHITE = (200, 200, 200)
@@ -20,14 +20,15 @@ CELL_SIZE = int(WINDOW_SIZE / CELLS)
 STATE_SIZE = (50,50)
 ACTION_SIZE = 4
 
-checkpoint = load_checkpoint('Training1.pkl')
 
-agent_q = QAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=checkpoint[1], time = checkpoint[2]) #Initialize the agent
+#Uncomment to continue training of existing agent
+#checkpoint = load_checkpoint('Training1.pkl')
+#agent_q = QAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=checkpoint[1], time = checkpoint[2]) #continue training of existing agent
+#Q_table = checkpoint[0]
 
+#Uncomment to initialize training of a new agent
 Q_table = np.zeros((STATE_SIZE[0]*STATE_SIZE[1], ACTION_SIZE), dtype=np.float32) #Init empty Q_table
-
-#Q_table = checkpoint[0] 
-#Q_table = load_table('Q_gael.pkl')
+agent_q = QAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=1, time = 0)
 
 class DroneGridEnv(gym.Env):
     def __init__(self, grid):
