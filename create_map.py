@@ -34,11 +34,11 @@ def main():
     WINDOW = pygame.display.set_mode((WINDOW_SIZE, WINDOW_SIZE))  # create a square window
 
     while True:  # runs until interrupted
-        drawMapSelectionScreen()
-        map_buttons = drawMapButtons()  # draw map selection buttons
+        drawMapSelectionScreen(WINDOW)
+        map_buttons = drawMapButtons(WINDOW)  # draw map selection buttons
         for event in pygame.event.get():
             if event.type == pygame.QUIT:  # handle window closing (ends program)
-                # save_map('map_ananas.pkl') # uncomment this line to save map in a file
+                #save_map('map_gazelle.pkl') # uncomment this line to save map in a file
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:  # handle mouse clicking
@@ -52,27 +52,28 @@ def main():
         pygame.display.update()
 
 # draw map selection screen
-def drawMapSelectionScreen():
-    WINDOW.fill(GRAY)  # fill window with gray
+def drawMapSelectionScreen(window):
+    window.fill(GRAY)  # fill window with gray
     font = pygame.font.SysFont(None, 40)
     text = font.render("Select a Map", True, WHITE)
     text_rect = text.get_rect(center=(WINDOW_SIZE // 2, 50))
-    WINDOW.blit(text, text_rect)
+    window.blit(text, text_rect)
+
 
 # draw map selection buttons
-def drawMapButtons():
+def drawMapButtons(window):
     map_buttons = []
     map_files = [f for f in os.listdir() if f.startswith("map_") and f.endswith(".pkl")]
     button_names = [f[len("map_"):].rstrip('.pkl') for f in map_files]
     button_height = 50
     for i, (map_file, button_name) in enumerate(zip(map_files, button_names)):
         button_rect = pygame.Rect(20, 100 + i * (button_height + 10), 300, button_height)
-        pygame.draw.rect(WINDOW, WHITE, button_rect)  # draw button
-        pygame.draw.rect(WINDOW, GRAY, button_rect, 3)  # draw border
+        pygame.draw.rect(window, WHITE, button_rect)  # draw button
+        pygame.draw.rect(window, GRAY, button_rect, 3)  # draw border
         font = pygame.font.SysFont(None, 30)
         text = font.render(button_name, True, GRAY)
         text_rect = text.get_rect(center=button_rect.center)
-        WINDOW.blit(text, text_rect)
+        window.blit(text, text_rect)
         map_buttons.append((button_rect, map_file))
     return map_buttons
 
@@ -99,7 +100,7 @@ def drawMap():
         drawGrid()
         for event in pygame.event.get():
             if event.type == pygame.QUIT: # handle window closing (ends program)  
-                # save_map('map_ananas.pkl') # uncomment this line to save map in a file (et changez le nom svp allez pas override les maps des autres gens >:( )
+                #save_map('map_gazelle.pkl') # uncomment this line to save map in a file (et changez le nom svp allez pas override les maps des autres gens >:( )
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:  # handle mouse clicking
