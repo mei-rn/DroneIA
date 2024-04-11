@@ -76,7 +76,7 @@ class DroneGridEnv(gym.Env):
                 reward = -100 # Negative reward for going in a wall
             
             else:
-                reward = -1 #Negative reward for non-goal state
+                reward = 0 #Negative reward for non-goal state
             
         else:
             done = False

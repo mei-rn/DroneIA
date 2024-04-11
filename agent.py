@@ -48,27 +48,24 @@ class QAgent:
                 posp1, reward, done = state.step(at) #Perform the action to obtain the next position, the reward and the status of the environment
                 
                 if done == True: #If goal is reached
-                    Q_table[st][at] = Q_table[st][at] + self.lr * reward #Update Q_table 
+                    Q_table[st][at] = (1 - self.lr) * Q_table[st][at] + self.lr * reward #Update Q_table 
                     break
                 
                 #Update Q_function
-                atp1 = self.compute_action(posp1, Q_table) #Compute best action at t+1 
                 stp1 = posp1[0] + posp1[1]*self.state_size[0] #Compute the indices of the state at t+1
-                
-                
-                state.current_pos = posp1 #Update the position of the agent at t+1
+                state.current_pos = posp1 #Update the position of the agent at t+1 in the environment
 
-                Q_table[st][at] = (1-self.lr)*(Q_table[st][at]) + self.lr * ( reward + self.gamma*Q_table[stp1][atp1] - Q_table[st][at]) #Update Q_table
+                Q_table[st][at] = (1-self.lr)*(Q_table[st][at]) + self.lr * (reward + self.gamma*max(Q_table[stp1])) #Update Q_table
             
-            self.save_checkpoint('Training1', Q_table, time) #Save training checkpoint
+            self.save_checkpoint('Training1.pkl', Q_table, time) #Save training checkpoint
             self.update_exploration_probability() #
         
-        def save_checkpoint(self, filename, Q_table, time):
-            decayed_explo_proba = self.exploration_proba * np.exp(-self.exploration_proba_decay * time)
-            checkpoint = np.array([Q_table, decayed_explo_proba, time])
+    def save_checkpoint(self, filename, Q_table, time):
+        decayed_explo_proba = self.exploration_proba * np.exp(-self.exploration_proba_decay * time)
+        checkpoint = np.array([Q_table, decayed_explo_proba, time], dtype= object)
     
-            with open(filename, 'wb') as f:
-                pickle.dump(checkpoint, f)
+        with open(filename, 'wb') as f:
+            pickle.dump(checkpoint, f)
 
 def load_checkpoint(filename):
     with open(filename, 'rb') as f:
@@ -77,4 +74,4 @@ def load_checkpoint(filename):
 
 #ag = QAgent(state_size=50*50, action_size=4)
 #ag.save_table('Q_gael.pkl')
-#Q=load_table('Q_gael.pkl')
+#check = load_checkpoint('Training1.pkl')
