@@ -40,6 +40,8 @@ class QAgent:
         self.exploration_proba = self.exploration_proba * np.exp(-self.exploration_proba_decay)
 
     def train(self, state, Q_table):
+        rewards = []
+        count = 0
         for time in range(1000-self.time): #For 2000 epochs
             done = False
             while not done: #While the epoch is not ended
@@ -48,7 +50,11 @@ class QAgent:
                 posp1, reward, done = state.step(at) #Perform the action to obtain the next position, the reward and the status of the environment
                 
                 if done == True: #If goal is reached
-                    Q_table[st][at] = (1 - self.lr) * Q_table[st][at] + self.lr * reward #Update Q_table 
+                    Q_table[st][at] = (1 - self.lr) * Q_table[st][at] + self.lr * reward #Update Q_table
+                    rewards.append(Q_table) #Save reward into list 
+                    print(Q_table)
+                    count+=1
+                    print("Number =", count)
                     break
                 
                 #Update Q_function
@@ -59,6 +65,10 @@ class QAgent:
             
             self.save_checkpoint('Training1.pkl', Q_table, time) #Save training checkpoint
             self.update_exploration_probability() #
+        print(rewards)
+        with open('rewards.txt', 'w') as f: #Rewards into text
+            for reward in rewards:
+                f.write(str(reward) + '\n')
         
     def save_checkpoint(self, filename, Q_table, time):
         decayed_explo_proba = self.exploration_proba * np.exp(-self.exploration_proba_decay * time)
