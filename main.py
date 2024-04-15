@@ -60,8 +60,8 @@ class DroneGridEnv(gym.Env):
             new_pos = (self.current_pos[0] + 1, self.current_pos[1])
         
         # Check if new position is within bounds and not an obstacle
-        if 0 <= new_pos[0] < self.grid_size[0] and 0 <= new_pos[1] < self.grid_size[1]:
-      #  if 0 <= new_pos[0] < self.grid_size[0] and 0 <= new_pos[1] < self.grid_size[1] and self.grid[new_pos[0]][new_pos[1]] != 1:
+        #if 0 <= new_pos[0] < self.grid_size[0] and 0 <= new_pos[1] < self.grid_size[1]:
+        if 0 <= new_pos[0] < self.grid_size[0] and 0 <= new_pos[1] < self.grid_size[1] and self.grid[new_pos[1]][new_pos[0]] != 1:
             self.current_pos = new_pos  # Update current position
             
             # Check if goal state is reached
