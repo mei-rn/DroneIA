@@ -51,8 +51,8 @@ class QAgent:
                 
                 if done == True: #If goal is reached
                     Q_table[st][at] = (1 - self.lr) * Q_table[st][at] + self.lr * reward #Update Q_table
-                    rewards.append(Q_table) #Save reward into list 
-                    print(Q_table)
+                    rewards.append(np.copy(Q_table)) #Save reward into list 
+                    print(np.copy(Q_table))
                     count+=1
                     print("Number =", count)
                     break
@@ -66,9 +66,8 @@ class QAgent:
             self.save_checkpoint('Training1.pkl', Q_table, time) #Save training checkpoint
             self.update_exploration_probability() #
         print(rewards)
-        with open('rewards.txt', 'w') as f: #Rewards into text
-            for reward in rewards:
-                f.write(str(reward) + '\n')
+        with open('rewards.pkl', 'wb') as f: #Rewards into text
+            pickle.dump(rewards, f)
         
     def save_checkpoint(self, filename, Q_table, time):
         decayed_explo_proba = self.exploration_proba * np.exp(-self.exploration_proba_decay * time)
