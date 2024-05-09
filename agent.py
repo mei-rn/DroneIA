@@ -42,9 +42,10 @@ class QAgent:
     def train(self, state, Q_table):
         rewards = []
         count = 0
-        for time in range(1000-self.time): #For 2000 epochs
+        for time in range(1000-self.time): #For 2000 epochs   
             done = False
             while not done: #While the epoch is not ended
+                random_num = random.random() #Random number between 0 and 1
                 at = self.compute_action(state.current_pos, Q_table) #Compute the action for the current state
                 st = state.current_pos[0] + state.current_pos[1]*self.state_size[0] #Compute the indices of the state
                 posp1, reward, done = state.step(at) #Perform the action to obtain the next position, the reward and the status of the environment
@@ -58,11 +59,15 @@ class QAgent:
                     break
                 
                 #Update Q_function
+                atp1 = self.compute_action(posp1, Q_table) #Compute the action for the next state
                 stp1 = posp1[0] + posp1[1]*self.state_size[0] #Compute the indices of the state at t+1
                 state.current_pos = posp1 #Update the position of the agent at t+1 in the environment
 
-                Q_table[st][at] = (1-self.lr)*(Q_table[st][at]) + self.lr * (reward + self.gamma*max(Q_table[stp1])) #Update Q_table
-            
+                if (random_num <= 0.5): #We use Q-learning
+                    Q_table[st][at] = (1-self.lr)*(Q_table[st][at]) + self.lr * (reward + self.gamma*max(Q_table[stp1])) #Update Q_table
+                else: #We use SARSA
+                    Q_table[st][at] = (1-self.lr)*(Q_table[st][at]) + self.lr * (reward + self.gamma*Q_table[stp1][atp1]) #Update Q_table
+                
             self.save_checkpoint('Training1.pkl', Q_table, time) #Save training checkpoint
             self.update_exploration_probability() #
         print(rewards)
