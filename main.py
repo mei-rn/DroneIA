@@ -14,10 +14,10 @@ DRONE = "drone.png"
 
 # window
 WINDOW_SIZE = 800
-CELLS = 50  # number of cells in the grid
+CELLS = 25  # number of cells in the grid
 CELL_SIZE = int(WINDOW_SIZE / CELLS)
 
-STATE_SIZE = (50,50)
+STATE_SIZE = (25,25)
 ACTION_SIZE = 4
 
 
@@ -109,10 +109,8 @@ def main():
                         selected_map = clicked_button[1]
                         print(selected_map)
                         MAP = load_map(selected_map)  # load selected map
-        
                         env = DroneGridEnv(MAP)
                         print(env)
-                        
                         runEnvironment(env, Q_table)
                         
         pygame.display.update()
