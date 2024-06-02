@@ -5,8 +5,9 @@ import pickle
 import os
 import pygame
 import sys
-from create_map import drawMap, drawGrid, drawMapButtons, drawMapSelectionScreen, load_map, save_map, getClickedButton
+from create_map import drawMapButtons, drawMapSelectionScreen, load_map, getClickedButton
 from agent import QAgent, load_checkpoint
+
 # colors
 GRAY = (150, 150, 150)
 WHITE = (200, 200, 200)
@@ -21,12 +22,12 @@ STATE_SIZE = (25,25)
 ACTION_SIZE = 4
 
 
-#Uncomment to continue training of existing agent
-#checkpoint = load_checkpoint('Training1.pkl')
-#agent_q = QAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=checkpoint[1], time = checkpoint[2]) #continue training of existing agent
-#Q_table = checkpoint[0]
+# Uncomment to continue training of existing agent
+# checkpoint = load_checkpoint('Training1.pkl')
+# agent_q = QAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=checkpoint[1], time = checkpoint[2]) #continue training of existing agent
+# Q_table = checkpoint[0]
 
-#Uncomment to initialize training of a new agent
+# Uncomment to initialize training of a new agent
 Q_table = np.zeros((STATE_SIZE[0]*STATE_SIZE[1], ACTION_SIZE), dtype=np.float32) #Init empty Q_table
 agent_q = QAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=1, time = 0)
 
@@ -60,7 +61,6 @@ class DroneGridEnv(gym.Env):
             new_pos = (self.current_pos[0] + 1, self.current_pos[1])
         
         # Check if new position is within bounds and not an obstacle
-        #if 0 <= new_pos[0] < self.grid_size[0] and 0 <= new_pos[1] < self.grid_size[1]:
         if 0 <= new_pos[0] < self.grid_size[0] and 0 <= new_pos[1] < self.grid_size[1] and self.grid[new_pos[1]][new_pos[0]] != 1:
             self.current_pos = new_pos  # Update current position
             
@@ -122,9 +122,9 @@ def draw_drone(x, y):
     drone_img = pygame.image.load("drone.png")  # Load the drone image
     drone_size = CELL_SIZE   # Adjust the size of the drone
     drone_img = pygame.transform.scale(drone_img, (drone_size, drone_size))  # Scale the image to match the drone size
-    drone_rect = drone_img.get_rect() #Get the surface to display the drone
+    drone_rect = drone_img.get_rect() # Get the surface to display the drone
     drone_rect.topleft = (x * CELL_SIZE + (CELL_SIZE - drone_size) // 2, y * CELL_SIZE + (CELL_SIZE - drone_size) // 2)
-    WINDOW.blit(drone_img, drone_rect) #Display the drone
+    WINDOW.blit(drone_img, drone_rect) # Display the drone
     
 
 def runEnvironment(env, Q_table):
@@ -149,15 +149,15 @@ def runEnvironment(env, Q_table):
                     action = 3
                 
                 if event.key == pygame.K_t:
-                    agent_q.train(env, Q_table) #Launch the training of the agent
+                    agent_q.train(env, Q_table) # Launch the training of the agent
                 
         if action != None:
-            env.step(action) #If an action is taken by the player
+            env.step(action) # If an action is taken by the player
         
-        render(env) #Rendering the environment
+        render(env) # Rendering the environment
 
 def render(env):
-    #DRAW grid
+    # Draw grid
         WINDOW.fill(GRAY)  # fill window with gray
         for x in range(0, WINDOW_SIZE, CELL_SIZE):
             for y in range(0, WINDOW_SIZE, CELL_SIZE):

@@ -11,7 +11,7 @@ DRONE = "drone.png"
 
 # window
 WINDOW_SIZE = 800
-CELLS = 25  # number of cells in the grid
+CELLS = 50  # number of cells in the grid
 CELL_SIZE = int(WINDOW_SIZE / CELLS)
 
 # empty map
@@ -38,7 +38,7 @@ def main():
         map_buttons = drawMapButtons(WINDOW)  # draw map selection buttons
         for event in pygame.event.get():
             if event.type == pygame.QUIT:  # handle window closing (ends program)
-                #save_map('map_gazelle.pkl') # uncomment this line to save map in a file
+                # save_map('map_gazelle.pkl') # uncomment this line to save map in a file
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:  # handle mouse clicking
