@@ -31,7 +31,7 @@ class QAgent:
         if np.random.uniform(0,1) < self.exploration_proba:
             return np.random.choice(range(self.n_actions))
         else:
-            current_state = current_pos[0] + 50*current_pos[1] #Obtain the value of the state (from 0 to 2499)
+            current_state = current_pos[0] + 25*current_pos[1] #Obtain the value of the state (from 0 to 2499)
             return np.argmax(Q_table[current_state]) #choose the best action according to the Q_table in this state
 
     # when an episode is finished, we update the exploration probability using espilon greedy algorithm
@@ -41,7 +41,8 @@ class QAgent:
     def train(self, state, Q_table):
         rewards = []
         count = 0
-        for time in range(1000-self.time): # For 1000 epochs   
+        distance = 0
+        for time in range(1000-self.time): # For 1000 epochs
             done = False
             while not done: # While the epoch is not ended
                 random_num = random.random() # Random number between 0 and 1
@@ -63,14 +64,16 @@ class QAgent:
                 state.current_pos = posp1 # Update the position of the agent at t+1 in the environment
 
                 if (random_num <= 0.5): # We use Q-learning
-                    Q_table[st][at] = (1-self.lr)*(Q_table[st][at]) + self.lr * (reward + self.gamma*max(Q_table[stp1])) # Update Q_table
+                    Q_table[st][at] = (1-self.lr)*(Q_table[st][at]) + self.lr * (reward + self.gamma*max(Q_table[stp1])) # Update Q_table with Q-learning
+                    distance += 1
                 else: # We use SARSA
-                    Q_table[st][at] = (1-self.lr)*(Q_table[st][at]) + self.lr * (reward + self.gamma*Q_table[stp1][atp1]) # Update Q_table
-                
+                    Q_table[st][at] = (1-self.lr)*(Q_table[st][at]) + self.lr * (reward + self.gamma*Q_table[stp1][atp1]) # Update Q_table with SARSA
+                    distance += 1
+
             self.save_checkpoint('Training1.pkl', Q_table, time) # Save training checkpoint
-            self.update_exploration_probability() # Update exploration probability
-        print(rewards)
-        with open('rewards.pkl', 'wb') as f: # Rewards into text
+            self.update_exploration_probability() 
+        print("Total distance: ", distance)
+        with open('rewards_simple.pkl', 'wb') as f: # Rewards into pkl
             pickle.dump(rewards, f)
         
     def save_checkpoint(self, filename, Q_table, time):
@@ -85,6 +88,6 @@ def load_checkpoint(filename):
         return pickle.load(f)
 
 
-#ag = QAgent(state_size=50*50, action_size=4)
-#ag.save_table('Q_gael.pkl')
-#check = load_checkpoint('Training1.pkl')
+# ag = QAgent(state_size=50*50, action_size=4)
+# ag.save_table('Q_gael.pkl')
+# check = load_checkpoint('Training1.pkl')
