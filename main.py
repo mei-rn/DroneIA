@@ -11,6 +11,7 @@ from agent import QAgent, load_checkpoint
 # colors
 GRAY = (150, 150, 150)
 WHITE = (200, 200, 200)
+PURPLE = (160, 32, 240)
 DRONE = "drone.png"
 
 # window
@@ -82,8 +83,9 @@ class DroneGridEnv(gym.Env):
             done = False
             reward = -100  # Negative reward for going out of bounds
         
-        
-        render(self) #Render on pygame
+        grid_image = preprocess_map(self.grid, self.current_pos, self.goal_pos) #process the map into a grid image
+        drone_pos = self.current_pos #collect the drone position
+        render(grid_image, drone_pos) # Rendering the environment
         
         return self.current_pos, reward, done  # Return next state, reward, episode termination flag
 
@@ -154,22 +156,36 @@ def runEnvironment(env, Q_table):
         if action != None:
             env.step(action) # If an action is taken by the player
         
-        render(env) # Rendering the environment
+        grid_image = preprocess_map(env.grid, env.current_pos, env.goal_pos) #process the map into a grid image
+        render(grid_image, env.current_pos) # Rendering the environment
 
-def render(env):
+def render(grid_img, drone_position):
     # Draw grid
         WINDOW.fill(GRAY)  # fill window with gray
         for x in range(0, WINDOW_SIZE, CELL_SIZE):
             for y in range(0, WINDOW_SIZE, CELL_SIZE):
                 rect = pygame.Rect(x, y, CELL_SIZE, CELL_SIZE)
                 pygame.draw.rect(WINDOW, WHITE, rect, 1)  # draw grid with white borders
-                if MAP[y // CELL_SIZE][x // CELL_SIZE] == 1:  # if it's an obstacle cell (1)
+
+                if grid_img[y // CELL_SIZE][x // CELL_SIZE] == 1:  # if it's an obstacle cell (1)
                     pygame.draw.rect(WINDOW, WHITE, rect)  # draw obstacle
 
-        # Render the drone position
-        draw_drone(env.current_pos[0], env.current_pos[1])
+                if grid_img[y // CELL_SIZE][x // CELL_SIZE] == 2: #if drone (2)
+                    draw_drone(drone_position[0], drone_position[1]) #draw drone
+
+                if grid_img[y // CELL_SIZE][x // CELL_SIZE] == 3: #if goal (3)
+                    pygame.draw.rect(WINDOW, PURPLE, rect) #draw goal
+
         
         pygame.display.update()
-        
+
+def preprocess_map(grid, agent_pos, goal_pos):
+    grid = np.array(grid)
+    processed_grid = np.zeros_like(grid)
+    processed_grid[grid == 1] = 1  # Obstacle
+    processed_grid[goal_pos] = 3  # Goal
+    processed_grid[agent_pos] = 2  # Agent
+    return processed_grid
+
 if __name__ == "__main__":
     main() 

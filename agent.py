@@ -4,13 +4,13 @@ import random
 
 class QAgent:
     def __init__(self, state_size, action_size, exploration_proba, time):
-        '''
+        
         self.n_actions = action_size
-        we define some parameters and hyperparameters:
-        "lr" : learning rate
-        "gamma": discounted factor
-        "exploration_proba_decay": decay of the exploration probability
-        '''
+        #we define some parameters and hyperparameters:
+        #"lr" : learning rate
+        #"gamma": discounted factor
+        #"exploration_proba_decay": decay of the exploration probability
+        
         self.lr = 1
         self.gamma = 0.9
         self.exploration_proba = exploration_proba # 1 if epsilon greedy algorithm
