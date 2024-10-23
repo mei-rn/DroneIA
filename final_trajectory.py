@@ -1,5 +1,7 @@
 import numpy as np
-final_Q_table
+import matplotlib.pyplot as plt
+
+
 
 def find_optimal_path(Q_table, env): #Trouver le chemin optimal
     path = []

@@ -7,6 +7,7 @@ import pygame
 import sys
 from create_map import drawMapButtons, drawMapSelectionScreen, load_map, getClickedButton
 from agent import QAgent, load_checkpoint
+from neural_network import NeuralAgent
 
 # colors
 GRAY = (150, 150, 150)
@@ -31,6 +32,8 @@ ACTION_SIZE = 4
 # Uncomment to initialize training of a new agent
 Q_table = np.zeros((STATE_SIZE[0]*STATE_SIZE[1], ACTION_SIZE), dtype=np.float32) #Init empty Q_table
 agent_q = QAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=1, time = 0)
+
+agent_neural = NeuralAgent(6, 16, 4)
 
 class DroneGridEnv(gym.Env):
     def __init__(self, grid):
@@ -151,7 +154,10 @@ def runEnvironment(env, Q_table):
                     action = 3
                 
                 if event.key == pygame.K_t:
-                    agent_q.train(env, Q_table) # Launch the training of the agent
+                    agent_q.train(env, Q_table) # Launch the training of the Q-Learning agent
+                
+                if event.key == pygame.K_n:
+                    agent_neural.train(env)
                 
         if action != None:
             env.step(action) # If an action is taken by the player
