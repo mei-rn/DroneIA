@@ -4,13 +4,21 @@ import random
 
 class QAgent:
     def __init__(self, state_size, action_size, exploration_proba, time):
-        '''
+        
         self.n_actions = action_size
+<<<<<<< HEAD
         we define some parameters and hyperparameters:
         "lr" : learning rate
         "gamma": discount factor
         "exploration_proba_decay": decay of the exploration probability
         '''
+=======
+        #we define some parameters and hyperparameters:
+        #"lr" : learning rate
+        #"gamma": discounted factor
+        #"exploration_proba_decay": decay of the exploration probability
+        
+>>>>>>> 8b27a655e3be439d847100aeff4fa320df70a79f
         self.lr = 1
         self.gamma = 0.9
         self.exploration_proba = exploration_proba # 1 if epsilon greedy algorithm
@@ -64,10 +72,12 @@ class QAgent:
                 state.current_pos = posp1 # Update the position of the agent at t+1 in the environment
 
                 if (random_num <= 0.5): # We use Q-learning
-                    Q_table[st][at] = (1-self.lr)*(Q_table[st][at]) + self.lr * (reward + self.gamma*max(Q_table[stp1])) # Update Q_table with Q-learning
+                    Q_table[st][at] = (1-self.lr)*(Q_table[st][at]) 
+                    + self.lr * (reward + self.gamma*max(Q_table[stp1])) # Update Q_table with Q-learning
                     distance += 1
                 else: # We use SARSA
-                    Q_table[st][at] = (1-self.lr)*(Q_table[st][at]) + self.lr * (reward + self.gamma*Q_table[stp1][atp1]) # Update Q_table with SARSA
+                    Q_table[st][at] = (1-self.lr)*(Q_table[st][at]) 
+                    + self.lr * (reward + self.gamma*Q_table[stp1][atp1]) # Update Q_table with SARSA
                     distance += 1
 
             self.save_checkpoint('Training1.pkl', Q_table, time) # Save training checkpoint
@@ -86,6 +96,7 @@ class QAgent:
 def load_checkpoint(filename):
     with open(filename, 'rb') as f:
         return pickle.load(f)
+
 
 
 # ag = QAgent(state_size=50*50, action_size=4)
