@@ -8,7 +8,7 @@ class QAgent:
         self.n_actions = action_size
         we define some parameters and hyperparameters:
         "lr" : learning rate
-        "gamma": discounted factor
+        "gamma": discount factor
         "exploration_proba_decay": decay of the exploration probability
         '''
         self.lr = 1
@@ -44,7 +44,7 @@ class QAgent:
         distance = 0
         for time in range(1000-self.time): # For 1000 epochs
             done = False
-            while not done: # While the epoch is not ended
+            while not done: # While the epoch has not ended
                 random_num = random.random() # Random number between 0 and 1
                 at = self.compute_action(state.current_pos, Q_table) # Compute the action for the current state
                 st = state.current_pos[0] + state.current_pos[1]*self.state_size[0] # Compute the indices of the state

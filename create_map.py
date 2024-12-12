@@ -11,7 +11,7 @@ DRONE = "drone.png"
 
 # window
 WINDOW_SIZE = 800
-CELLS = 50  # number of cells in the grid
+CELLS = 25  # number of cells in the grid
 CELL_SIZE = int(WINDOW_SIZE / CELLS)
 
 # empty map
