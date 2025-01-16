@@ -29,6 +29,7 @@ def save_map(filename):
 
 # main function
 def main():
+    
     global WINDOW, MAP
     pygame.init()
     WINDOW = pygame.display.set_mode((WINDOW_SIZE, WINDOW_SIZE))  # create a square window
@@ -96,7 +97,9 @@ def drawGrid():
 
 # draw on selected map
 def drawMap():
+
     while True:
+        
         drawGrid()
         for event in pygame.event.get():
             if event.type == pygame.QUIT: # handle window closing (ends program)  

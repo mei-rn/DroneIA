@@ -2,7 +2,7 @@ import numpy as np
 import pickle
 import random
 
-class QAgent:
+class QAgent():
     def __init__(self, state_size, action_size, exploration_proba, time):
         
         self.n_actions = action_size
@@ -38,7 +38,7 @@ class QAgent:
     def update_exploration_probability(self):
         self.exploration_proba = self.exploration_proba * np.exp(-self.exploration_proba_decay)
 
-    def train(self, state, Q_table):
+    def train(self, state, Q_table, use_sarsa=False):
         rewards = []
         count = 0
         distance = 0
@@ -63,17 +63,21 @@ class QAgent:
                 stp1 = posp1[0] + posp1[1]*self.state_size[0] # Compute the indices of the state at t+1
                 state.current_pos = posp1 # Update the position of the agent at t+1 in the environment
 
-                if (random_num <= 0.5): # We use Q-learning
-                    Q_table[st][at] = (1-self.lr)*(Q_table[st][at]) 
-                    + self.lr * (reward + self.gamma*max(Q_table[stp1])) # Update Q_table with Q-learning
-                    distance += 1
-                else: # We use SARSA
+                if use_sarsa == True: # We use SARSA
                     Q_table[st][at] = (1-self.lr)*(Q_table[st][at]) 
                     + self.lr * (reward + self.gamma*Q_table[stp1][atp1]) # Update Q_table with SARSA
                     distance += 1
+                    print("SARSA is used")
+                    
+                else: # We use Q-Learning
+                    Q_table[st][at] = (1-self.lr)*(Q_table[st][at]) 
+                    + self.lr * (reward + self.gamma*max(Q_table[stp1])) # Update Q_table with Q-learning
+                    distance += 1
+                    print("Q-Learning is used")
 
             self.save_checkpoint('Training1.pkl', Q_table, time) # Save training checkpoint
-            self.update_exploration_probability() 
+            self.update_exploration_probability()
+
         print("Total distance: ", distance)
         with open('rewards_simple.pkl', 'wb') as f: # Rewards into pkl
             pickle.dump(rewards, f)

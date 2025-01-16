@@ -161,3 +161,4 @@ def calculate_reward(grid, agent_position, previous_position, num_moves):
     reward -= 0.01 * num_moves
 
     return reward
+

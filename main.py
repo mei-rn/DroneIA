@@ -6,7 +6,8 @@ import sys
 from create_map import drawMapButtons, drawMapSelectionScreen, load_map, getClickedButton
 from agent import QAgent, load_checkpoint
 from dual_agent import DualAgent
-from neural_network import NeuralAgent, DeepQAgent
+from neural_agent import NeuralAgent
+from deep_q_agent import DeepQAgent
 
 # colors
 GRAY = (150, 150, 150)
@@ -21,7 +22,6 @@ CELL_SIZE = int(WINDOW_SIZE / CELLS)
 
 STATE_SIZE = (25,25)
 ACTION_SIZE = 4
-
 
 
 class DroneGridEnv():
@@ -162,10 +162,10 @@ def runEnvironment(env, Q_table):
                 
                 # Launch specific trainings
                 if event.key == pygame.K_KP0:
-                    agent_q.train(env, Q_table, SARSA=False) # Launch the training of the agent with Q-Learning
+                    agent_q.train(env, Q_table, use_sarsa=False) # Launch the training of the agent with Q-Learning
                 
                 if event.key == pygame.K_KP1:
-                    agent_q.train(env, Q_table, SARSA=True) # Launch the training of the agent with only SARSA
+                    agent_q.train(env, Q_table, use_sarsa=True) # Launch the training of the agent with only SARSA
                 
                 if event.key == pygame.K_KP2:
                     agent_both.train(env, Q_table) # Launch the training of the agent with alternating Q-Learning/SARSA
@@ -199,9 +199,9 @@ agent_q = QAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=1, time = 0)
 
 agent_both = DualAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=1, time = 0)
 
-agent_neural = NeuralAgent(6, 16, 4)
+# agent_neural = NeuralAgent(6, 16, 4)
 
-agent_deepq = DeepQAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=1, time = 0)
+# agent_deepq = DeepQAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=1, time = 0)
 
 
 def main():
