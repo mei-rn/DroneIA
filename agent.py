@@ -89,9 +89,10 @@ class QAgent():
         with open(filename, 'wb') as f:
             pickle.dump(checkpoint, f)
 
-def load_checkpoint(filename):
+def load(filename):
     with open(filename, 'rb') as f:
         return pickle.load(f)
+
 
 
 

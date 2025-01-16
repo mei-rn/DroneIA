@@ -4,7 +4,7 @@ import os
 import pygame
 import sys
 from create_map import drawMapButtons, drawMapSelectionScreen, load_map, getClickedButton
-from agent import QAgent, load_checkpoint
+from agent import QAgent, load
 from dual_agent import DualAgent
 from neural_agent import NeuralAgent
 from deep_q_agent import DeepQAgent
@@ -13,6 +13,7 @@ from deep_q_agent import DeepQAgent
 GRAY = (150, 150, 150)
 WHITE = (200, 200, 200)
 PURPLE = (160, 32, 240)
+GREEN = (0, 255, 0)
 DRONE = "drone.png"
 
 # window
@@ -111,31 +112,53 @@ def render(grid_img, drone_position):
 
                 if grid_img[y // CELL_SIZE][x // CELL_SIZE] == 3: #if goal (3)
                     pygame.draw.rect(WINDOW, PURPLE, rect) #draw goal
+                
+                if grid_img[y // CELL_SIZE][x // CELL_SIZE] == 4: #if path (4)
+                    pygame.draw.rect(WINDOW, GREEN, rect) #draw path in green
         
         pygame.display.update()
 
-def preprocess_map(grid, agent_pos, goal_pos):
+def preprocess_map(grid, agent_pos, goal_pos, path = None):
+
+    ''' Preprocess the map into a grid image'''
+
     grid = np.array(grid)
+
     processed_grid = np.zeros_like(grid)
     processed_grid[grid == 1] = 1  # Obstacle
     processed_grid[goal_pos] = 3  # Goal
     processed_grid[agent_pos] = 2  # Agent
+
+    if path != None:
+       processed_grid[path == 1] = 4  # Path
+    
     return processed_grid
 
 def find_optimal_path(env, Q_table = None): # Trouver le chemin optimal
-    path = []
+
+    ''' Génère une image du chemin optimal avec la Q_Table donnée'''
+    
+    if Q_table is None:
+        raise ValueError("Q_table is not defined")
+    
+    grid = np.array(env.grid)
+    optimal_path = np.zeros_like(grid)
+
     state = env.reset()
-    path.append(state)
+
+    optimal_path[state] = 1
 
     while state != env.goal_pos:
         state_index = state[0] + state[1] * env.grid_size[0]
         action = np.argmax(Q_table[state_index])
         state, _, done = env.step(action)
-        path.append(state)
+        optimal_path[state] = 1
+        
+
         if done:
             break
-
-    return path
+    
+    return optimal_path
 
 
 def runEnvironment(env, Q_table):
@@ -143,6 +166,7 @@ def runEnvironment(env, Q_table):
     while True:
         # Handle events
         action = None
+        found_path = None
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -177,23 +201,29 @@ def runEnvironment(env, Q_table):
                     agent_deepq.train(env, Q_table) # Launch the training of the agent with personalized algorithm
                 
                 if event.key == pygame.K_KP5:
-                    find_optimal_path(env, Q_table) # Find the optimal path with the Q_table
+                    found_path = find_optimal_path(env, Q_table) # Find the optimal path with the Q_table
+                
                 
         if action != None:
             env.step(action) # If an action is taken by the player
         
-        grid_image = preprocess_map(env.grid, env.current_pos, env.goal_pos) #process the map into a grid image
+        grid_image = preprocess_map(env.grid, env.current_pos, env.goal_pos, path = found_path) #process the map into a grid image
 
         render(grid_image, env.current_pos) # Rendering the environment
 
 
 # Uncomment to continue training of existing agent
-# checkpoint = load_checkpoint('Training1.pkl')
+# checkpoint = load('Training1.pkl')
 # agent_q = QAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=checkpoint[1], time = checkpoint[2]) #continue training of existing agent
 # Q_table = checkpoint[0]
 
+# Q_Table = load('Q_table.pkl') # Load existing Q_table
+
 # Uncomment to initialize training of a new classical agent
-Q_table = np.zeros((STATE_SIZE[0]*STATE_SIZE[1], ACTION_SIZE), dtype=np.float32) #Init empty Q_table
+# Q_table = np.zeros((STATE_SIZE[0]*STATE_SIZE[1], ACTION_SIZE), dtype=np.float32) #Init empty Q_table
+
+# Fake Q-Table for testing
+Q_table = np.random.rand(STATE_SIZE[0]*STATE_SIZE[1], ACTION_SIZE)
 
 agent_q = QAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=1, time = 0)
 
@@ -242,11 +272,6 @@ def main():
                         runEnvironment(env, Q_table)
                         
         pygame.display.update()
-
-
-
-
-    
 
 
 if __name__ == "__main__":
