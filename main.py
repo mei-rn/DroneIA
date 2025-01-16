@@ -1,5 +1,3 @@
-import gym
-from gym import spaces
 import numpy as np
 import pickle
 import os
@@ -7,7 +5,8 @@ import pygame
 import sys
 from create_map import drawMapButtons, drawMapSelectionScreen, load_map, getClickedButton
 from agent import QAgent, load_checkpoint
-from neural_network import NeuralAgent
+from dual_agent import DualAgent
+from neural_network import NeuralAgent, DeepQAgent
 
 # colors
 GRAY = (150, 150, 150)
@@ -24,24 +23,15 @@ STATE_SIZE = (25,25)
 ACTION_SIZE = 4
 
 
-# Uncomment to continue training of existing agent
-# checkpoint = load_checkpoint('Training1.pkl')
-# agent_q = QAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=checkpoint[1], time = checkpoint[2]) #continue training of existing agent
-# Q_table = checkpoint[0]
 
-# Uncomment to initialize training of a new agent
-Q_table = np.zeros((STATE_SIZE[0]*STATE_SIZE[1], ACTION_SIZE), dtype=np.float32) #Init empty Q_table
-agent_q = QAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=1, time = 0)
+class DroneGridEnv():
 
-agent_neural = NeuralAgent(6, 16, 4)
-
-class DroneGridEnv(gym.Env):
     def __init__(self, grid):
-        super(DroneGridEnv, self).__init__()
+
         self.grid = grid
         self.grid_size = np.array(grid).shape
-        self.observation_space = spaces.Tuple((spaces.Discrete(self.grid_size[0]), spaces.Discrete(self.grid_size[1])))
-        self.action_space = spaces.Discrete(4)  # 4 discrete actions: 0 = up, 1 = down, 2 = left, 3 = right
+        self.observation_space = (self.grid_size[0]), (self.grid_size[1])
+        self.action_space = [0, 1, 2, 3] # 4 discrete actions: 0 = up, 1 = down, 2 = left, 3 = right
         self.start_pos = (0, 0)  # Starting position at top left corner
         self.goal_pos = (self.grid_size[0] - 1, self.grid_size[1] - 1)  # Goal position at bottom right corner
         self.current_pos = self.start_pos  # Initialize current position
@@ -51,7 +41,8 @@ class DroneGridEnv(gym.Env):
         return self.current_pos  # Return initial state
 
     def step(self, action):
-        assert self.action_space.contains(action)
+
+        assert action in self.action_space, f"Invalid action {action}"  # Check if action is valid
         
         
         # Define movement based on action
@@ -92,36 +83,6 @@ class DroneGridEnv(gym.Env):
         
         return self.current_pos, reward, done  # Return next state, reward, episode termination flag
 
-
-def main():
-    global MAP, WINDOW, Q_table
-    pygame.init()
-    WINDOW_SIZE = 800
-    WINDOW = pygame.display.set_mode((WINDOW_SIZE, WINDOW_SIZE))  # create a square window
-
-    while True:  # runs until interrupted
-        drawMapSelectionScreen(WINDOW)
-        map_buttons = drawMapButtons(WINDOW)  # draw map selection buttons
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:  # handle window closing (ends program)
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:  # handle mouse clicking
-                if pygame.mouse.get_pressed()[0]:  # left mouse button
-                    pos = pygame.mouse.get_pos()  # get click position
-                    clicked_button = getClickedButton(map_buttons, pos)
-                    if clicked_button:  # if a button is clicked
-                        selected_map = clicked_button[1]
-                        print(selected_map)
-                        MAP = load_map(selected_map)  # load selected map
-                        env = DroneGridEnv(MAP)
-                        print(env)
-                        runEnvironment(env, Q_table)
-                        
-        pygame.display.update()
-
-
-
 # Draw the drone
 def draw_drone(x, y):
     drone_img = pygame.image.load("drone.png")  # Load the drone image
@@ -130,9 +91,55 @@ def draw_drone(x, y):
     drone_rect = drone_img.get_rect() # Get the surface to display the drone
     drone_rect.topleft = (x * CELL_SIZE + (CELL_SIZE - drone_size) // 2, y * CELL_SIZE + (CELL_SIZE - drone_size) // 2)
     WINDOW.blit(drone_img, drone_rect) # Display the drone
-    
+
+def render(grid_img, drone_position):
+    # Draw grid
+        WINDOW.fill(GRAY)  # fill window with gray
+
+        for x in range(0, WINDOW_SIZE, CELL_SIZE):
+
+            for y in range(0, WINDOW_SIZE, CELL_SIZE):
+
+                rect = pygame.Rect(x, y, CELL_SIZE, CELL_SIZE)
+                pygame.draw.rect(WINDOW, WHITE, rect, 1)  # draw grid with white borders
+
+                if grid_img[y // CELL_SIZE][x // CELL_SIZE] == 1:  # if it's an obstacle cell (1)
+                    pygame.draw.rect(WINDOW, WHITE, rect)  # draw obstacle
+
+                if grid_img[y // CELL_SIZE][x // CELL_SIZE] == 2: #if drone (2)
+                    draw_drone(drone_position[0], drone_position[1]) #draw drone
+
+                if grid_img[y // CELL_SIZE][x // CELL_SIZE] == 3: #if goal (3)
+                    pygame.draw.rect(WINDOW, PURPLE, rect) #draw goal
+        
+        pygame.display.update()
+
+def preprocess_map(grid, agent_pos, goal_pos):
+    grid = np.array(grid)
+    processed_grid = np.zeros_like(grid)
+    processed_grid[grid == 1] = 1  # Obstacle
+    processed_grid[goal_pos] = 3  # Goal
+    processed_grid[agent_pos] = 2  # Agent
+    return processed_grid
+
+def find_optimal_path(env, Q_table = None): # Trouver le chemin optimal
+    path = []
+    state = env.reset()
+    path.append(state)
+
+    while state != env.goal_pos:
+        state_index = state[0] + state[1] * env.grid_size[0]
+        action = np.argmax(Q_table[state_index])
+        state, _, done = env.step(action)
+        path.append(state)
+        if done:
+            break
+
+    return path
+
 
 def runEnvironment(env, Q_table):
+
     while True:
         # Handle events
         action = None
@@ -153,45 +160,94 @@ def runEnvironment(env, Q_table):
                 if event.key == pygame.K_RIGHT:
                     action = 3
                 
-                if event.key == pygame.K_t:
-                    agent_q.train(env, Q_table) # Launch the training of the Q-Learning agent
+                # Launch specific trainings
+                if event.key == pygame.K_KP0:
+                    agent_q.train(env, Q_table, SARSA=False) # Launch the training of the agent with Q-Learning
                 
-                if event.key == pygame.K_n:
-                    agent_neural.train(env)
+                if event.key == pygame.K_KP1:
+                    agent_q.train(env, Q_table, SARSA=True) # Launch the training of the agent with only SARSA
+                
+                if event.key == pygame.K_KP2:
+                    agent_both.train(env, Q_table) # Launch the training of the agent with alternating Q-Learning/SARSA
+                
+                if event.key == pygame.K_KP3:
+                    agent_neural.train(env) # Launch the training of the agent with Deep Q-Learning
+                
+                if event.key == pygame.K_KP4:
+                    agent_deepq.train(env, Q_table) # Launch the training of the agent with personalized algorithm
+                
+                if event.key == pygame.K_KP5:
+                    find_optimal_path(env, Q_table) # Find the optimal path with the Q_table
                 
         if action != None:
             env.step(action) # If an action is taken by the player
         
         grid_image = preprocess_map(env.grid, env.current_pos, env.goal_pos) #process the map into a grid image
+
         render(grid_image, env.current_pos) # Rendering the environment
 
-def render(grid_img, drone_position):
-    # Draw grid
-        WINDOW.fill(GRAY)  # fill window with gray
-        for x in range(0, WINDOW_SIZE, CELL_SIZE):
-            for y in range(0, WINDOW_SIZE, CELL_SIZE):
-                rect = pygame.Rect(x, y, CELL_SIZE, CELL_SIZE)
-                pygame.draw.rect(WINDOW, WHITE, rect, 1)  # draw grid with white borders
 
-                if grid_img[y // CELL_SIZE][x // CELL_SIZE] == 1:  # if it's an obstacle cell (1)
-                    pygame.draw.rect(WINDOW, WHITE, rect)  # draw obstacle
+# Uncomment to continue training of existing agent
+# checkpoint = load_checkpoint('Training1.pkl')
+# agent_q = QAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=checkpoint[1], time = checkpoint[2]) #continue training of existing agent
+# Q_table = checkpoint[0]
 
-                if grid_img[y // CELL_SIZE][x // CELL_SIZE] == 2: #if drone (2)
-                    draw_drone(drone_position[0], drone_position[1]) #draw drone
+# Uncomment to initialize training of a new classical agent
+Q_table = np.zeros((STATE_SIZE[0]*STATE_SIZE[1], ACTION_SIZE), dtype=np.float32) #Init empty Q_table
 
-                if grid_img[y // CELL_SIZE][x // CELL_SIZE] == 3: #if goal (3)
-                    pygame.draw.rect(WINDOW, PURPLE, rect) #draw goal
+agent_q = QAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=1, time = 0)
 
-        
+agent_both = DualAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=1, time = 0)
+
+agent_neural = NeuralAgent(6, 16, 4)
+
+agent_deepq = DeepQAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=1, time = 0)
+
+
+def main():
+
+    global MAP, WINDOW, Q_table
+    pygame.init()
+    WINDOW_SIZE = 800
+    WINDOW = pygame.display.set_mode((WINDOW_SIZE, WINDOW_SIZE))  # create a square window
+
+    while True:  # runs until interrupted
+
+        drawMapSelectionScreen(WINDOW)
+
+        map_buttons = drawMapButtons(WINDOW)  # draw map selection buttons
+
+        for event in pygame.event.get():
+
+            if event.type == pygame.QUIT:  # handle window closing (ends program)
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:  # handle mouse clicking
+
+                if pygame.mouse.get_pressed()[0]:  # left mouse button
+
+                    pos = pygame.mouse.get_pos()  # get click position
+
+                    clicked_button = getClickedButton(map_buttons, pos)
+
+                    if clicked_button:  # if a button is clicked
+
+                        selected_map = clicked_button[1]
+                        print(selected_map)
+                        MAP = load_map(selected_map)  # load selected map
+                        env = DroneGridEnv(MAP)
+
+                        print(env)
+                        runEnvironment(env, Q_table)
+                        
         pygame.display.update()
 
-def preprocess_map(grid, agent_pos, goal_pos):
-    grid = np.array(grid)
-    processed_grid = np.zeros_like(grid)
-    processed_grid[grid == 1] = 1  # Obstacle
-    processed_grid[goal_pos] = 3  # Goal
-    processed_grid[agent_pos] = 2  # Agent
-    return processed_grid
+
+
+
+    
+
 
 if __name__ == "__main__":
     main() 
