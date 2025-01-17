@@ -78,9 +78,9 @@ class DroneGridEnv():
             done = False
             reward = -100  # Negative reward for going out of bounds
         
-        grid_image = preprocess_map(self.grid, self.current_pos, self.goal_pos) #process the map into a grid image
-        drone_pos = self.current_pos #collect the drone position
-        render(grid_image, drone_pos) # Rendering the environment
+        # grid_image = preprocess_map(self.grid, self.current_pos, self.goal_pos) #process the map into a grid image
+        # drone_pos = self.current_pos #collect the drone position
+        # render(grid_image, drone_pos) # Rendering the environment
         
         return self.current_pos, reward, done  # Return next state, reward, episode termination flag
 
@@ -186,6 +186,7 @@ def runEnvironment(env, Q_table):
                 
                 # Launch specific trainings
                 if event.key == pygame.K_KP0:
+                    print('Training Q-Learning')
                     agent_q.train(env, Q_table, use_sarsa=False) # Launch the training of the agent with Q-Learning
                 
                 if event.key == pygame.K_KP1:
@@ -207,27 +208,24 @@ def runEnvironment(env, Q_table):
         if action != None:
             env.step(action) # If an action is taken by the player
         
-        grid_image = preprocess_map(env.grid, env.current_pos, env.goal_pos, path = found_path) #process the map into a grid image
+        # grid_image = preprocess_map(env.grid, env.current_pos, env.goal_pos, path = found_path) #process the map into a grid image
 
-        render(grid_image, env.current_pos) # Rendering the environment
+        # render(grid_image, env.current_pos) # Rendering the environment
 
 
-# Uncomment to continue training of existing agent
-# checkpoint = load('Training1.pkl')
-# agent_q = QAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=checkpoint[1], time = checkpoint[2]) #continue training of existing agent
-# Q_table = checkpoint[0]
 
-# Q_Table = load('Q_table.pkl') # Load existing Q_table
+
+# Q_Table = load('Training_Q-Learning.pkl') # Load existing Q_table
 
 # Uncomment to initialize training of a new classical agent
-# Q_table = np.zeros((STATE_SIZE[0]*STATE_SIZE[1], ACTION_SIZE), dtype=np.float32) #Init empty Q_table
+Q_table = np.zeros((STATE_SIZE[0]*STATE_SIZE[1], ACTION_SIZE), dtype=np.float32) #Init empty Q_table
 
 # Fake Q-Table for testing
-Q_table = np.random.rand(STATE_SIZE[0]*STATE_SIZE[1], ACTION_SIZE)
+# Q_table = np.random.rand(STATE_SIZE[0]*STATE_SIZE[1], ACTION_SIZE)
 
 agent_q = QAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=1, time = 0)
 
-agent_both = DualAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=1, time = 0)
+# agent_both = DualAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=1, time = 0)
 
 # agent_neural = NeuralAgent(6, 16, 4)
 
@@ -267,6 +265,9 @@ def main():
                         print(selected_map)
                         MAP = load_map(selected_map)  # load selected map
                         env = DroneGridEnv(MAP)
+                        grid_image = preprocess_map(env.grid, env.current_pos, env.goal_pos) #process the map into a grid image
+
+                        render(grid_image, env.current_pos) # Rendering the environment
 
                         print(env)
                         runEnvironment(env, Q_table)

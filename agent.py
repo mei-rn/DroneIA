@@ -14,7 +14,7 @@ class QAgent():
         self.lr = 1
         self.gamma = 0.9
         self.exploration_proba = exploration_proba # 1 if epsilon greedy algorithm
-        self.exploration_proba_decay = 0.005
+        self.exploration_proba_decay = 0.01
         self.state_size = state_size
         self.time = time
 
@@ -45,7 +45,7 @@ class QAgent():
         for time in range(1000-self.time): # For 1000 epochs
             done = False
             while not done: # While the epoch has not ended
-                random_num = random.random() # Random number between 0 and 1
+
                 at = self.compute_action(state.current_pos, Q_table) # Compute the action for the current state
                 st = state.current_pos[0] + state.current_pos[1]*self.state_size[0] # Compute the indices of the state
                 posp1, reward, done = state.step(at) # Perform the action to obtain the next position, the reward and the status of the environment
@@ -73,21 +73,27 @@ class QAgent():
                     Q_table[st][at] = (1-self.lr)*(Q_table[st][at]) 
                     + self.lr * (reward + self.gamma*max(Q_table[stp1])) # Update Q_table with Q-learning
                     distance += 1
-                    print("Q-Learning is used")
 
-            self.save_checkpoint('Training1.pkl', Q_table, time) # Save training checkpoint
+                    # print("Q-Learning is used")
+
+            self.save_q_table('Training_Q-Learning.pkl', Q_table) # Save training checkpoint
+
             self.update_exploration_probability()
 
         print("Total distance: ", distance)
-        with open('rewards_simple.pkl', 'wb') as f: # Rewards into pkl
-            pickle.dump(rewards, f)
+
+        if use_sarsa == False:
+            with open('rewards_q_learning.pkl', 'wb') as f: # Rewards into pkl
+                pickle.dump(rewards, f)
         
-    def save_checkpoint(self, filename, Q_table, time):
-        decayed_explo_proba = self.exploration_proba * np.exp(-self.exploration_proba_decay * time)
-        checkpoint = np.array([Q_table, decayed_explo_proba, time], dtype= object)
-    
+        if use_sarsa == True:
+            with open('rewards_sarsa.pkl', 'wb') as f:
+                pickle.dump(rewards, f)
+        
+
+    def save_q_table(self, filename, Q_table):
         with open(filename, 'wb') as f:
-            pickle.dump(checkpoint, f)
+            pickle.dump(Q_table, f)
 
 def load(filename):
     with open(filename, 'rb') as f:
