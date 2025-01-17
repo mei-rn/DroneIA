@@ -14,7 +14,7 @@ class QAgent():
         self.lr = 1
         self.gamma = 0.9
         self.exploration_proba = exploration_proba # 1 if epsilon greedy algorithm
-        self.exploration_proba_decay = 0.01
+        self.exploration_proba_decay = 0.005
         self.state_size = state_size
         self.time = time
 
@@ -42,7 +42,7 @@ class QAgent():
         rewards = []
         count = 0
         distance = 0
-        for time in range(1000-self.time): # For 1000 epochs
+        for time in range(500-self.time): # For 500 epochs
             done = False
             while not done: # While the epoch has not ended
 
