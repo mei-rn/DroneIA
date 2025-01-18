@@ -46,6 +46,7 @@ def find_optimal_path(env, Q_table = None): # Trouver le chemin optimal
     state = env.reset()
 
     optimal_path[state] = 1
+    iteration = 0
 
     while state != env.goal_pos:
         state_index = state[0] + state[1] * env.grid_size[0]
@@ -53,8 +54,10 @@ def find_optimal_path(env, Q_table = None): # Trouver le chemin optimal
         state, _, done = env.step(action)
         optimal_path[state] = 1
         
-
-        if done:
+        iteration += 1
+        if (done):
+            break
+        if (iteration > 500):
             break
     
     return optimal_path
