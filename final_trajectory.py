@@ -147,6 +147,6 @@ q_hard1 = load('Hard1 - Q-Learning.pkl')
 q_hard2 = load('Hard2 - Q-Learning.pkl')
 q_hard3 = load('Hard3 - Q-Learning.pkl')
 
-s_simple = load('Q_Table - SARSA.pkl')
+# s_simple = load('Q_Table - SARSA.pkl')
 
 choose_image(env_hard1, q_hard1)
