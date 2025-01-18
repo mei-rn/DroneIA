@@ -4,8 +4,6 @@ import os
 import pygame
 import sys
 from create_map import drawMapButtons, drawMapSelectionScreen, load_map, getClickedButton
-from agent import QAgent, load
-from dual_agent import DualAgent
 from neural_agent import NeuralAgent
 from deep_q_agent import DeepQAgent
 
@@ -141,6 +139,10 @@ def find_optimal_path(env, Q_table = None): # Trouver le chemin optimal
     if Q_table is None:
         raise ValueError("Q_table is not defined")
     
+    if Q_table.shape[0] != env.grid_size[0]*env.grid_size[1]:
+        raise ValueError("Q_table shape does not match the grid size")
+    
+    
     grid = np.array(env.grid)
     optimal_path = np.zeros_like(grid)
 
@@ -204,6 +206,8 @@ def runEnvironment(env, Q_table):
                 if event.key == pygame.K_KP5:
                     found_path = find_optimal_path(env, Q_table) # Find the optimal path with the Q_table
                 
+                if event.key == pygame.K_KP6:
+                    pass
                 
         if action != None:
             env.step(action) # If an action is taken by the player
@@ -214,18 +218,18 @@ def runEnvironment(env, Q_table):
 
 
 
+# Uncomment to continue training of existing agent
+# checkpoint = load('Training1.pkl')
+# agent_q = QAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=checkpoint[1], time = checkpoint[2]) #continue training of existing agent
+# Q_table = checkpoint[0]
 
-# Q_Table = load('Training_Q-Learning.pkl') # Load existing Q_table
+# Q_Table = load('Q_table.pkl') # Load existing Q_table
 
 # Uncomment to initialize training of a new classical agent
 Q_table = np.zeros((STATE_SIZE[0]*STATE_SIZE[1], ACTION_SIZE), dtype=np.float32) #Init empty Q_table
 
 # Fake Q-Table for testing
 # Q_table = np.random.rand(STATE_SIZE[0]*STATE_SIZE[1], ACTION_SIZE)
-
-agent_q = QAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=1, time = 0)
-
-# agent_both = DualAgent(STATE_SIZE, ACTION_SIZE, exploration_proba=1, time = 0)
 
 # agent_neural = NeuralAgent(6, 16, 4)
 

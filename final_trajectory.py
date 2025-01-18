@@ -1,21 +1,152 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import pygame
+import os
+import sys
+import pickle
+from main import DroneGridEnv
 
 
+# define colors
+GRAY = (150, 150, 150)
+WHITE = (200, 200, 200)
+PURPLE = (150, 0, 150)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
+DRONE = "drone.png"
 
-def find_optimal_path(Q_table, env): #Trouver le chemin optimal
-    path = []
+# window
+WINDOW_SIZE = 800
+
+
+def load(filename):
+    ''' Load a map from a file'''
+    with open(filename, 'rb') as f:
+        return pickle.load(f)
+
+def map_to_env(grid):
+    ''' Convert a map to a grid environment'''
+    env = DroneGridEnv(grid)
+    return env
+
+def find_optimal_path(env, Q_table = None): # Trouver le chemin optimal
+
+    ''' Génère une image du chemin optimal avec la Q_Table donnée'''
+    
+    if Q_table is None:
+        raise ValueError("Q_table is not defined")
+    
+    if Q_table.shape[0] != env.grid_size[0]*env.grid_size[1]:
+        raise ValueError("Q_table shape does not match the grid size")
+    
+    
+    grid = np.array(env.grid)
+    optimal_path = np.zeros_like(grid)
+
     state = env.reset()
-    path.append(state)
+
+    optimal_path[state] = 1
 
     while state != env.goal_pos:
         state_index = state[0] + state[1] * env.grid_size[0]
         action = np.argmax(Q_table[state_index])
         state, _, done = env.step(action)
-        path.append(state)
+        optimal_path[state] = 1
+        
+
         if done:
             break
+    
+    return optimal_path
 
-    return path
+def preprocess_map(grid, agent_pos, goal_pos, path):
 
-optimal_path = find_optimal_path(Q_table)
+    ''' Preprocess the map into a grid image'''
+
+    grid = np.array(grid)
+
+    processed_grid = np.zeros_like(grid)
+    processed_grid[grid == 1] = 1  # Obstacle
+    processed_grid[goal_pos] = 3  # Goal
+    processed_grid[agent_pos] = 2  # Agent
+
+    if path.all() != None:
+       
+       processed_grid[path == 1] = 4  # Path
+
+       for x in range(grid.shape[0]):
+           for y in range(grid.shape[1]):
+               if grid[x][y] == 1 and path[x][y] == 1:
+                   processed_grid[x][y] = 5  # Obstacle in path
+
+    
+    return processed_grid
+
+def render(grid_img, drone_position = None):
+    '''Render the grid image with the drone position and the path'''
+    
+    pygame.init()
+    WINDOW = pygame.display.set_mode((WINDOW_SIZE, WINDOW_SIZE))  # create a square window
+    # Draw grid
+    WINDOW.fill(GRAY)  # fill window with gray
+
+    CELLS = grid_img.shape[0]
+    CELL_SIZE = int(WINDOW_SIZE / CELLS)
+    while True:
+
+        for event in pygame.event.get():
+
+            if event.type == pygame.QUIT:  # handle window closing (ends program)
+                pygame.quit()
+                sys.exit()
+
+        for x in range(0, WINDOW_SIZE, CELL_SIZE):
+
+            for y in range(0, WINDOW_SIZE, CELL_SIZE):
+
+                rect = pygame.Rect(x, y, CELL_SIZE, CELL_SIZE)
+                pygame.draw.rect(WINDOW, WHITE, rect, 1)  # draw grid with white borders
+
+                if grid_img[y // CELL_SIZE][x // CELL_SIZE] == 1:  # if it's an obstacle cell (1)
+                    pygame.draw.rect(WINDOW, WHITE, rect)  # draw obstacle
+
+           # if grid_img[y // CELL_SIZE][x // CELL_SIZE] == 2: #if drone (2)
+                # draw_drone(drone_position[0], drone_position[1])
+
+                
+            
+                if grid_img[y // CELL_SIZE][x // CELL_SIZE] == 4: #if path (4)
+                    pygame.draw.rect(WINDOW, GREEN, rect) #draw path in green
+
+                if grid_img[y // CELL_SIZE][x // CELL_SIZE] == 3: #if goal (3)
+                    pygame.draw.rect(WINDOW, PURPLE, rect) #draw goal in purple
+                
+                if grid_img[y // CELL_SIZE][x // CELL_SIZE] == 5:
+                    pygame.draw.rect(WINDOW, RED, rect)
+        
+        pygame.display.update()
+
+def choose_image(env,q):
+    optimal_path = find_optimal_path(env, q)
+    grid_img = preprocess_map(env.grid, env.current_pos, env.goal_pos, optimal_path)
+    render(grid_img, env.current_pos)
+    
+# Load maps, environments and Q-Tables
+map_simple = load('map_simple.pkl')
+map_hard1 = load('map_hard1.pkl')
+map_hard2 = load('map_hard2.pkl')
+map_hard3 = load('map_hard3.pkl')
+
+env_simple = map_to_env(map_simple)
+env_hard1 = map_to_env(map_hard1)
+env_hard2 = map_to_env(map_hard2)
+env_hard3 = map_to_env(map_hard3)
+
+q_simple = load('Simple - Q-Learning.pkl')
+q_hard1 = load('Hard1 - Q-Learning.pkl')
+q_hard2 = load('Hard2 - Q-Learning.pkl')
+q_hard3 = load('Hard3 - Q-Learning.pkl')
+
+s_simple = load('Q_Table - SARSA.pkl')
+
+choose_image(env_hard1, q_hard1)
