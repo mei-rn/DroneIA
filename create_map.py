@@ -39,7 +39,7 @@ def main():
         map_buttons = drawMapButtons(WINDOW)  # draw map selection buttons
         for event in pygame.event.get():
             if event.type == pygame.QUIT:  # handle window closing (ends program)
-                save_map('10x10 - hard.pkl') # uncomment this line to save map in a file
+                save_map('map_hard.pkl') # uncomment this line to save map in a file
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:  # handle mouse clicking
@@ -103,7 +103,7 @@ def drawMap():
         drawGrid()
         for event in pygame.event.get():
             if event.type == pygame.QUIT: # handle window closing (ends program)  
-                save_map('10x10 - hard.pkl') # uncomment this line to save map in a file (et changez le nom svp allez pas override les maps des autres gens >:( )
+                save_map('map_hard.pkl') # uncomment this line to save map in a file (et changez le nom svp allez pas override les maps des autres gens >:( )
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:  # handle mouse clicking
