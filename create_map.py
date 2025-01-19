@@ -15,7 +15,7 @@ CELLS = 10  # number of cells in the grid
 CELL_SIZE = int(WINDOW_SIZE / CELLS)
 
 # empty map
-MAP = [[0 for _ in range(CELLS)] for _ in range(CELLS)] # uncomment this line to create an empty map
+# MAP = [[0 for _ in range(CELLS)] for _ in range(CELLS)] # uncomment this line to create an empty map
 
 # load map from file (/\ do not comment this function)
 def load_map(filename):

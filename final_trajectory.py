@@ -45,14 +45,14 @@ def find_optimal_path(env, Q_table = None): # Trouver le chemin optimal
 
     state = env.reset()
 
-    optimal_path[state] = 1
+    optimal_path[state[1], state[0]] = 1
     iteration = 0
 
     while state != env.goal_pos:
         state_index = state[0] + state[1] * env.grid_size[0]
         action = np.argmax(Q_table[state_index])
         state, _, done = env.step(action)
-        optimal_path[state] = 1
+        optimal_path[state[1], state[0]] = 1
         
         iteration += 1
         if (done):
@@ -60,6 +60,7 @@ def find_optimal_path(env, Q_table = None): # Trouver le chemin optimal
         if (iteration > 500):
             break
     
+    print(optimal_path)
     return optimal_path
 
 def preprocess_map(grid, agent_pos, goal_pos, path):
@@ -136,20 +137,35 @@ def choose_image(env,q):
     
 # Load maps, environments and Q-Tables
 map_simple = load('map_simple.pkl')
-map_hard1 = load('map_hard1.pkl')
-map_hard2 = load('map_hard2.pkl')
-map_hard3 = load('map_hard3.pkl')
+map_mid = load('map_mid.pkl')
+map_hard = load('map_hard.pkl')
+
 
 env_simple = map_to_env(map_simple)
-env_hard1 = map_to_env(map_hard1)
-env_hard2 = map_to_env(map_hard2)
-env_hard3 = map_to_env(map_hard3)
+env_mid = map_to_env(map_mid)
+env_hard = map_to_env(map_hard)
+
 
 q_simple = load('Simple - Q-Learning.pkl')
-q_hard1 = load('Hard1 - Q-Learning.pkl')
-q_hard2 = load('Hard2 - Q-Learning.pkl')
-q_hard3 = load('Hard3 - Q-Learning.pkl')
+q_mid = load('Mid - Q-Learning.pkl')
+q_hard = load('Hard - Q-Learning.pkl')
 
-# s_simple = load('Q_Table - SARSA.pkl')
+s_simple = load('Simple - SARSA.pkl')
+s_mid = load('Mid - SARSA.pkl')
+s_hard = load('Hard - SARSA.pkl')
 
-choose_image(env_hard1, q_hard1)
+a_simple = load('Simple - Alternating.pkl')
+#a_mid = load('Mid - Alternating.pkl')
+#a_hard = load('Hard - Alternating.pkl')
+
+#choose_image(env_simple, q_simple)
+#choose_image(env_mid, q_mid)
+#choose_image(env_hard, q_hard)
+
+#choose_image(env_simple, s_simple)
+#choose_image(env_mid, s_mid)
+#choose_image(env_hard, s_hard)
+
+choose_image(env_simple, a_simple)
+#choose_image(env_mid, a_mid)
+#choose_image(env_hard, a_hard)
