@@ -125,7 +125,7 @@ def calculate_input_tensor(grid, agent_position):
 
     return input_tensor
 
-def calculate_reward(grid, agent_position, previous_position, num_moves):
+def calculate_reward(grid, agent_position, num_moves):
     # Get the dimensions of the grid
     height, width = grid.shape
 
@@ -147,18 +147,8 @@ def calculate_reward(grid, agent_position, previous_position, num_moves):
     goal_position = np.argwhere(grid == 2)[0]
     distance_to_goal = np.sqrt((goal_position[0] - x)**2 + (goal_position[1] - y)**2)
 
-    # Calculate the distance moved by the agent
-    distance_moved = np.sqrt((previous_position[0] - x)**2 + (previous_position[1] - y)**2)
-
     # Reward the agent for moving closer to the goal
     reward += 1 / distance_to_goal
-
-    # Penalize the agent for not moving
-    if distance_moved == 0:
-        reward -= 0.1
-
-    # Penalize the agent for making more moves
-    reward -= 0.01 * num_moves
 
     return reward
 

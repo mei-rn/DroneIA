@@ -158,7 +158,7 @@ a_simple = load('Simple - Alternating.pkl')
 a_mid = load('Mid - Alternating.pkl')
 a_hard = load('Hard - Alternating.pkl')
 
-choose_image(env_simple, q_simple)
+#choose_image(env_simple, q_simple)
 #choose_image(env_mid, q_mid)
 #choose_image(env_hard, q_hard)
 
