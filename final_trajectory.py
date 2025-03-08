@@ -160,12 +160,12 @@ a_hard = load('Hard - Alternating.pkl')
 
 #choose_image(env_simple, q_simple)
 #choose_image(env_mid, q_mid)
-choose_image(env_hard, q_hard)
+#choose_image(env_hard, q_hard)
 
 #choose_image(env_simple, s_simple)
 #choose_image(env_mid, s_mid)
 #choose_image(env_hard, s_hard)
 
-#choose_image(env_simple, a_simple)
+choose_image(env_simple, a_simple)
 #choose_image(env_mid, a_mid)
 #choose_image(env_hard, a_hard)
