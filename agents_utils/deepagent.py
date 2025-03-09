@@ -6,7 +6,6 @@ import random
 from collections import deque
 import time
 from interaction_module import compute_action_torch
-from env_utils.loading import save_weights
 
 class DeepQNetwork(nn.Module):
     def __init__(self, input_size, hidden_size, output_size):
@@ -107,8 +106,5 @@ def deep_q_learning(env, memory, policy_net, target_net, optimizer, alpha=0.1, g
 
     delta_time = start_time - time.time()
     print(f"Time: {delta_time}")
-
-    save_weights('policy_net_weights_simple.pth', policy_net)
-    save_weights('target_net_weights_simple.pth', target_net)
 
     return rewards, delta_time, steps
